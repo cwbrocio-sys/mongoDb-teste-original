@@ -1,215 +1,167 @@
-# E-commerce Application
+# E-commerce MongoDB - Deploy Automático
 
-This is a full-stack e-commerce application with a separate admin panel and user-facing frontend, built using React.js for the frontend and Node.js with Express.js for the backend. MongoDB is used as the database.
+Este é um e-commerce completo com frontend, backend e painel administrativo, configurado para deploy automático no GitHub.
 
-## Table of Contents
+## 🚀 Estrutura do Projeto
 
-- [Features](#features)
-  - [Admin Panel](#admin-panel)
-  - [User Frontend](#user-frontend)
-- [Technologies Used](#technologies-used)
-- [Setup Instructions](#setup-instructions)
-  - [Prerequisites](#prerequisites)
-  - [Backend Setup](#backend-setup)
-  - [Admin Panel Setup](#admin-panel-setup)
-  - [User Frontend Setup](#user-frontend-setup)
-- [Environment Variables](#environment-variables)
+```
+mongoDb-teste/
+├── frontend/          # Aplicação React (cliente)
+├── backend/           # API Node.js + Express
+├── admin/             # Painel administrativo React
+├── .github/workflows/ # GitHub Actions para CI/CD
+└── README.md
+```
 
-## Features
+## 📦 Tecnologias Utilizadas
 
-### Admin Panel
+- **Frontend**: React + Vite + Tailwind CSS
+- **Backend**: Node.js + Express + MongoDB
+- **Admin**: React + Vite + Tailwind CSS
+- **Deploy**: Vercel + GitHub Actions
+- **Database**: MongoDB Atlas
 
-The admin panel provides functionalities for managing products and orders.
+## 🔧 Configuração do Deploy Automático
 
-- **Admin Authentication:** Secure login for administrators.
-- **Product Management:**
-  - Add new products with details such as name, description, price, category, sub-category, sizes, and multiple images.
-  - View a list of all products.
-  - Update and remove existing products.
-- **Order Management:**
-  - View all customer orders.
-  - Update the status of orders (e.g., Order Placed, Packing, Shipped, Out For Delivery, Delivered).
+### 1. Configurar Secrets no GitHub
 
-### User Frontend
+Acesse `Settings > Secrets and variables > Actions` no seu repositório GitHub e adicione:
 
-The user-facing frontend allows customers to browse products, manage their cart, and place orders.
+```
+VERCEL_TOKEN=seu_token_vercel
+VERCEL_ORG_ID=seu_org_id_vercel
+VERCEL_PROJECT_ID_FRONTEND=id_projeto_frontend
+VERCEL_PROJECT_ID_ADMIN=id_projeto_admin
+VERCEL_PROJECT_ID_BACKEND=id_projeto_backend
+```
 
-- **User Authentication:** Register, login, and logout functionalities.
-- **Product Catalog:**
-  - Browse products on the home and collection pages.
-  - View detailed information for individual products, including multiple images, description, and available sizes.
-  - Search for products by name.
-  - Filter products by category and sub-category.
-  - Sort products by price (low to high, high to low) and relevance.
-- **Shopping Cart:**
-  - Add products to the cart with selected sizes.
-  - Update product quantities in the cart.
-  - Remove items from the cart.
-- **Order Placement:**
-  - Proceed to checkout from the cart.
-  - Place orders using Cash on Delivery (COD) or Stripe payment gateway.
-- **Order History:** View a list of all placed orders.
-- **Informational Pages:** 
+### 2. Como obter os tokens Vercel:
 
+1. **VERCEL_TOKEN**: 
+   - Acesse https://vercel.com/account/tokens
+   - Crie um novo token
+   - Copie o token gerado
 
-  - About Us page providing information about the company's mission and values.
-  - Contact Us page with contact details and career information.
-  - Newsletter subscription.
+2. **VERCEL_ORG_ID**:
+   - Execute: `npx vercel` na pasta do projeto
+   - O ID será exibido no terminal
 
-## Technologies Used
+3. **VERCEL_PROJECT_ID**:
+   - Crie projetos separados no Vercel para frontend, admin e backend
+   - Copie os IDs de cada projeto
 
-**Frontend (Admin & User):**
-- React.js
-- Vite (build tool)
-- Tailwind CSS (for styling)
-- React Router DOM (for navigation)
-- Axios (for API requests)
-- React Toastify (for notifications)
+### 3. Configuração dos Projetos no Vercel
 
-**Backend:**
-- Node.js
-- Express.js (web framework)
-- MongoDB (database)
-- Mongoose (ODM for MongoDB)
-- Cloudinary (for image storage)
-- Multer (for handling `multipart/form-data`)
-- JWT (JSON Web Tokens for authentication)
-- Bcrypt (for password hashing)
-- Validator (for input validation)
-- CORS (for Cross-Origin Resource Sharing)
-- Dotenv (for environment variables)
-- Stripe (payment gateway integration)
-- Razorpay (payment gateway integration - *Note: Implementation is present but not fully utilized in the provided code*)
+#### Frontend:
+- **Framework Preset**: Vite
+- **Root Directory**: `frontend`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
 
-## Setup Instructions
+#### Admin:
+- **Framework Preset**: Vite
+- **Root Directory**: `admin`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
 
-To get this project up and running on your local machine, follow these steps:
+#### Backend:
+- **Framework Preset**: Other
+- **Root Directory**: `backend`
+- **Build Command**: `npm install`
+- **Output Directory**: `.`
 
-1.  **Clone the repository:** Obtain the project files by cloning the Git repository.
-2.  **Install dependencies:** Install the necessary packages for both the backend and frontend components.
-3.  **Configure environment variables:** Set up the required environment variables for database connection, API keys, and other configurations.
-4.  **Run the applications:** Start the backend server, admin panel, and user frontend.
+## 🔄 Como Funciona o Deploy Automático
 
-Below are the detailed setup instructions for each component:
+1. **Push para master**: Toda vez que você fizer push para a branch master
+2. **Testes automáticos**: O GitHub Actions roda testes e linting
+3. **Build**: Compila frontend e admin
+4. **Deploy**: Faz deploy automático para Vercel
+5. **Notificação**: Informa se o deploy foi bem-sucedido
 
-### Prerequisites
+## 📝 Comandos Úteis
 
-- Node.js (v14 or higher)
-- npm or yarn
-- MongoDB Atlas account (or local MongoDB instance)
-- Cloudinary account
-- Stripe account (for payment gateway)
+### Desenvolvimento Local:
 
-### Backend Setup
+```bash
+# Backend
+cd backend
+npm install
+npm start
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository_url>
-    cd backend
-    ```
+# Frontend
+cd frontend
+npm install
+npm run dev
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
+# Admin
+cd admin
+npm install
+npm run dev
+```
 
-3.  **Create a `.env` file:**
-    Create a file named `.env` in the `backend` directory and add the following environment variables:
-    ```
-    STRIPE_SECRET_KEY=your_stripe_secret_key
-    MONGODB_URI=your_mongodb_connection_uri
-    CLOUDINARY_NAME=your_cloudinary_cloud_name
-    CLOUDINARY_API_KEY=your_cloudinary_api_key
-    CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-    JWT_SECRET=your_jwt_secret
-    ADMIN_EMAIL=your_admin_email@example.com
-    ADMIN_PASSWORD=your_admin_password
-    PORT=3000
-    ```
-    *Replace the placeholder values with your actual credentials.*
+### Deploy Manual:
 
-4.  **Run the backend server:**
-    ```bash
-    npm start
-    # or
-    yarn start
-    ```
-    The backend server will run on `http://localhost:3000` (or the port you specified in `.env`).
+```bash
+# Deploy frontend
+cd frontend
+vercel --prod
 
-### Admin Panel Setup
+# Deploy admin
+cd admin
+vercel --prod
 
-1.  **Navigate to the `admin` directory:**
-    ```bash
-    cd ../admin
-    ```
+# Deploy backend
+cd backend
+vercel --prod
+```
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
+## 🌐 URLs de Produção
 
-3.  **Create a `.env` file:**
-    Create a file named `.env` in the `admin` directory and add the following environment variable:
-    ```
-    VITE_BACKEND_URL=http://localhost:3000
-    ```
-    *Ensure the `VITE_BACKEND_URL` matches your backend server address.*
+Após configurar o deploy automático, suas aplicações estarão disponíveis em:
 
-4.  **Run the admin panel:**
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    ```
-    The admin panel will run on `http://localhost:5174` (or the port specified in `vite.config.js`).
+- **Frontend**: https://seu-frontend.vercel.app
+- **Admin**: https://seu-admin.vercel.app
+- **Backend**: https://seu-backend.vercel.app
 
-### User Frontend Setup
+## 🔒 Variáveis de Ambiente
 
-1.  **Navigate to the `frontend` directory:**
-    ```bash
-    cd ../frontend
-    ```
+Certifique-se de configurar as variáveis de ambiente no Vercel:
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
+### Backend:
+```
+MONGODB_URI=sua_string_conexao_mongodb
+JWT_SECRET=seu_jwt_secret
+CLOUDINARY_NAME=seu_cloudinary_name
+CLOUDINARY_API_KEY=sua_api_key
+CLOUDINARY_API_SECRET=seu_api_secret
+```
 
-3.  **Create a `.env` file:**
-    Create a file named `.env` in the `frontend` directory and add the following environment variable:
-    ```
-    VITE_BACKEND_URL=http://localhost:3000
-    ```
-    *Ensure the `VITE_BACKEND_URL` matches your backend server address.*
+### Frontend:
+```
+VITE_BACKEND_URL=https://seu-backend.vercel.app
+```
 
-4.  **Run the user frontend:**
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    ```
-    The user frontend will run on `http://localhost:5173` (or the port specified in `vite.config.js`).
+### Admin:
+```
+VITE_BACKEND_URL=https://seu-backend.vercel.app
+```
 
-## Environment Variables
+## 🚨 Importante
 
-Make sure to configure the following environment variables in their respective `.env` files:
+1. **Nunca commite arquivos .env** - Eles estão no .gitignore
+2. **Configure as variáveis de ambiente no Vercel** para cada projeto
+3. **Teste localmente** antes de fazer push para master
+4. **Monitore os logs** do GitHub Actions em caso de falha
 
-**Backend (`backend/.env`):**
-- `STRIPE_SECRET_KEY`: Your secret key from Stripe for payment processing.
-- `MONGODB_URI`: Connection string for your MongoDB database (e.g., from MongoDB Atlas).
-- `CLOUDINARY_NAME`: Your Cloudinary cloud name.
-- `CLOUDINARY_API_KEY`: Your Cloudinary API key.
-- `CLOUDINARY_API_SECRET`: Your Cloudinary API secret.
-- `JWT_SECRET`: A strong, random string for JWT token signing.
-- `ADMIN_EMAIL`: Email for admin login.
-- `ADMIN_PASSWORD`: Password for admin login.
-- `PORT`: Port for the backend server (default: `3000`).
+## 📞 Suporte
 
-**Frontend (`admin/.env` and `frontend/.env`):**
-- `VITE_BACKEND_URL`: The URL of your backend server (e.g., `http://localhost:3000`).
+Se encontrar problemas com o deploy automático:
+
+1. Verifique os logs do GitHub Actions
+2. Confirme se todos os secrets estão configurados
+3. Teste o build local antes do push
+4. Verifique as variáveis de ambiente no Vercel
+
+---
+
+**Desenvolvido com ❤️ para deploy automático e sincronização contínua!**

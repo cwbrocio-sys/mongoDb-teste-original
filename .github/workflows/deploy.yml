@@ -1,0 +1,165 @@
+name: Deploy E-commerce
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    # Backend Tests
+    - name: Install Backend Dependencies
+      run: |
+        cd backend
+        npm ci
+    
+    - name: Test Backend
+      run: |
+        cd backend
+        npm test --if-present
+    
+    - name: Lint Backend
+      run: |
+        cd backend
+        npm run lint --if-present
+    
+    # Frontend Tests
+    - name: Install Frontend Dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Test Frontend
+      run: |
+        cd frontend
+        npm test --if-present
+    
+    - name: Lint Frontend
+      run: |
+        cd frontend
+        npm run lint --if-present
+    
+    - name: Build Frontend
+      run: |
+        cd frontend
+        npm run build
+    
+    # Admin Tests
+    - name: Install Admin Dependencies
+      run: |
+        cd admin
+        npm ci
+    
+    - name: Test Admin
+      run: |
+        cd admin
+        npm test --if-present
+    
+    - name: Lint Admin
+      run: |
+        cd admin
+        npm run lint --if-present
+    
+    - name: Build Admin
+      run: |
+        cd admin
+        npm run build
+
+  deploy:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    # Build all applications
+    - name: Install and Build Frontend
+      run: |
+        cd frontend
+        npm ci
+        npm run build
+    
+    - name: Install and Build Admin
+      run: |
+        cd admin
+        npm ci
+        npm run build
+    
+    - name: Install Backend Dependencies
+      run: |
+        cd backend
+        npm ci
+    
+    # Deploy to Vercel (Frontend)
+    - name: Deploy Frontend to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+        working-directory: ./frontend
+        vercel-args: '--prod'
+    
+    # Deploy to Vercel (Admin)
+    - name: Deploy Admin to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
+        working-directory: ./admin
+        vercel-args: '--prod'
+    
+    # Deploy to Vercel (Backend)
+    - name: Deploy Backend to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
+        working-directory: ./backend
+        vercel-args: '--prod'
+
+  notify:
+    needs: [test-and-build, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify Success
+      if: needs.deploy.result == 'success'
+      run: |
+        echo "✅ Deploy realizado com sucesso!"
+        echo "Frontend: https://seu-frontend.vercel.app"
+        echo "Admin: https://seu-admin.vercel.app"
+        echo "Backend: https://seu-backend.vercel.app"
+    
+    - name: Notify Failure
+      if: needs.test-and-build.result == 'failure' || needs.deploy.result == 'failure'
+      run: |
+        echo "❌ Deploy falhou. Verifique os logs para mais detalhes."
